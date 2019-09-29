@@ -1,6 +1,6 @@
 /*
- * Created by Eugene on $file.created
- * Modified on $file.modified
+ * Created by Eugene on 9/29/19 11:21 AM
+ * Modified on 9/29/19 11:21 AM
  * Copyright (c) 2019.
  */
 
@@ -27,6 +27,7 @@ import static com.openci.apicommunicator.restservices.APIClient.getPublicClient;
  */
 
 public class UserService {
+
 
     public static void getIndividualUser(String public_travis_token,  String private_travis_token, int id, @Nullable final IAPICallBack callback){
         String public_authorization_token;
