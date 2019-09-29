@@ -1,3 +1,9 @@
+/*
+ * Created by Eugene on $file.created
+ * Modified on $file.modified
+ * Copyright (c) 2019.
+ */
+
 package com.openci.apicommunicator.models;
 
 import com.google.gson.annotations.SerializedName;
@@ -41,6 +47,17 @@ public class UserResponse {
 
     @SerializedName("synced_at")
     private String mSyncedAt;
+
+    @SerializedName("email")
+    private String email;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getType() {
         return mType;
