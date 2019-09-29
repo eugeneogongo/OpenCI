@@ -1,3 +1,9 @@
+/*
+ * Created by Eugene on $file.created
+ * Modified on $file.modified
+ * Copyright (c) 2019.
+ */
+
 package com.openci.apicommunicator.restservices;
 
 import androidx.annotation.Nullable;
@@ -69,4 +75,47 @@ public class UserService {
             }
         });
     }
+
+    /**
+     * Get the User profile
+     *
+     * @param public_travis_token token
+     * @param callback            callback
+     */
+    public static void getProfile(String public_travis_token, @Nullable final IAPICallBack callback) {
+        String public_authorization_token;
+        Retrofit retrofit;
+        Call<UserResponse> userResponseCall;
+
+        public_authorization_token = "token " + public_travis_token;
+        retrofit = getPublicClient();
+
+        IUser user = retrofit.create(IUser.class);
+
+        userResponseCall = user.getProfile(
+                public_authorization_token
+        );
+
+        userResponseCall.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                if (response.code() == 200) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError(LibApp.getContext().getString(R.string.null_general_response));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                if (t != null && t.getMessage() != null) {
+                    callback.onError(t.getMessage());
+                } else {
+                    callback.onError(LibApp.getContext().getString(R.string.null_failure_response));
+                }
+            }
+        });
+
+    }
+
 }
