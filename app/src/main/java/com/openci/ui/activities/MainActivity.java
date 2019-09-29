@@ -1,16 +1,33 @@
+/*
+ * Created by Eugene on $file.created
+ * Modified on $file.modified
+ * Copyright (c) 2019.
+ */
+
 package com.openci.ui.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import com.google.android.material.navigation.NavigationView;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
+import android.os.Handler;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.material.navigation.NavigationView;
 import com.openci.R;
+import com.openci.apicommunicator.callbacks.IAPICallBack;
+import com.openci.apicommunicator.models.UserResponse;
+import com.openci.apicommunicator.restservices.UserService;
+import com.openci.common.Constants;
 import com.openci.core.DrawerNavigator;
 import com.openci.core.FragmentNavigator;
 
@@ -22,6 +39,7 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout mDrawerLayout;
     private DrawerNavigator drawerNavigator;
     private FragmentNavigator fragmentNavigator;
+    TextView profile_name, profile_email;
 
 
     @Override
@@ -29,21 +47,46 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         // Adding Toolbar to Main screen
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        //get Header Textviews on the Navigation
+        View header = navigationView.getHeaderView(0);
+        profile_email = header.findViewById(R.id.profile_email);
+        profile_name = header.findViewById(R.id.profile_name);
+
+
 
         fragmentNavigator = new FragmentNavigator(getSupportFragmentManager());
         drawerNavigator = new DrawerNavigator(this, fragmentNavigator);
+        UserService.getProfile(getToken("public_travis_token"), new IAPICallBack() {
+            @Override
+            public void onSuccess(@NonNull Object value) {
+                UserResponse user = (UserResponse) value;
+                new Handler(MainActivity.this.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        profile_name.setText(user.getName());
+                        profile_email.setText(user.getEmail());
+                    }
+                });
+            }
+
+            @Override
+            public void onError(@NonNull String errorMessage) {
+
+            }
+        });
     }
 
     @Override
@@ -89,5 +132,14 @@ public class MainActivity extends AppCompatActivity
         }
         mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    /**
+     * @return Oath token from sharedprefences
+     */
+    String getToken(String name) {
+        SharedPreferences pref = getSharedPreferences(Constants.PREFS_NAME, 0);
+        Log.d("token: ", pref.getString(name, "none"));
+        return pref.getString(name, "none");
     }
 }
